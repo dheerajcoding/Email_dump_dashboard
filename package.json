@@ -1,0 +1,29 @@
+{
+  "name": "email-lead-sync-dashboard",
+  "version": "1.0.0",
+  "description": "MERN Stack Email Lead Sync Dashboard - Automatically fetch and sync lead data from emails",
+  "scripts": {
+    "install-all": "cd backend && npm install && cd ../frontend && npm install",
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "backend": "cd backend && npm run dev",
+    "frontend": "cd frontend && npm run dev",
+    "start": "concurrently \"npm run backend-start\" \"npm run frontend-start\"",
+    "backend-start": "cd backend && npm start",
+    "frontend-start": "cd frontend && npm run preview",
+    "build": "cd frontend && npm run build"
+  },
+  "keywords": [
+    "mern",
+    "email",
+    "leads",
+    "sync",
+    "dashboard",
+    "imap",
+    "excel"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
