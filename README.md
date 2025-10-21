@@ -1,8 +1,8 @@
-# Email Lead Sync Dashboard - Simple Version# Email Lead Sync Dashboard 📧
+# Email Lead Sync Dashboard 📧
 
+A full-stack MERN application that automatically fetches emails from a specified mailbox, extracts lead data from Excel attachments, and displays them in a real-time dashboard.
 
-
-## 📋 What It DoesA full-stack MERN application that automatically fetches emails from a specified mailbox, extracts lead data from Excel attachments, and displays them in a real-time dashboard.
+## 📋 What It Does
 
 
 
@@ -337,6 +337,38 @@ MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/email-leads
 - Email polling interval is 10 minutes (configurable in `utils/emailPoller.js`)
 - Temp files are automatically cleaned after processing
 
+## 🚀 Deployment
+
+This application is ready to deploy on Render!
+
+### Quick Deploy
+
+1. **Push to GitHub**
+   ```bash
+   git init
+   git add .
+   git commit -m "Ready for deployment"
+   git remote add origin https://github.com/yourusername/your-repo.git
+   git push -u origin main
+   ```
+
+2. **Deploy on Render**
+   - Go to [Render Dashboard](https://dashboard.render.com)
+   - Click "New +" → "Web Service"
+   - Connect your GitHub repository
+   - Render will auto-detect settings from `render.yaml`
+   - Add environment variables (MongoDB, email credentials, etc.)
+   - Click "Create Web Service"
+
+3. **Configure Environment Variables**
+   - See `DEPLOY_CHECKLIST.md` for the complete list
+   - See `DEPLOYMENT.md` for detailed instructions
+
+### Documentation
+
+- 📋 **[DEPLOY_CHECKLIST.md](DEPLOY_CHECKLIST.md)** - Quick deployment checklist
+- 📚 **[DEPLOYMENT.md](DEPLOYMENT.md)** - Comprehensive deployment guide
+
 ## 🤝 Contributing
 
 Feel free to submit issues and enhancement requests!
@@ -347,4 +379,4 @@ ISC
 
 ---
 
-**Built with ❤️ using the MERN stack**
+**Built with ❤️ using the MERN stack** | **Deploy on** [Render](https://render.com)
