@@ -7,13 +7,9 @@
     "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
     "backend": "cd backend && npm run dev",
     "frontend": "cd frontend && npm run dev",
-    "start": "cd backend && npm start",
     "backend-start": "cd backend && npm start",
     "frontend-start": "cd frontend && npm run preview",
-    "build": "cd frontend && npm run build",
-    "install-backend": "cd backend && npm install",
-    "install-frontend": "cd frontend && npm install",
-    "postinstall": "npm run install-backend && npm run install-frontend && npm run build"
+    "build": "cd frontend && npm run build"
   },
   "keywords": [
     "mern",

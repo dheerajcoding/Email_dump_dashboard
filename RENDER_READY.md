@@ -1,8 +1,8 @@
-# 🎉 Your App is Now Render-Ready!
+# 🎉 Your App is Now Render-Ready (Separate Frontend & Backend)!
 
 ## ✅ Changes Made
 
-Your Email Lead Sync Dashboard has been configured for deployment on Render. Here's what was updated:
+Your Email Lead Sync Dashboard has been configured for deployment on Render with **separate frontend and backend services** for optimal performance. Here's what was updated:
 
 ### 1. **Package Configuration** ✨
    - **File**: `package.json` (root)

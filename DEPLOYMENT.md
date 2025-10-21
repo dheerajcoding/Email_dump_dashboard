@@ -1,6 +1,12 @@
-# 🚀 Deploying to Render
+# 🚀 Deploying to Render (Separate Frontend & Backend)
 
-This guide will help you deploy the Email Lead Sync Dashboard to Render.
+This guide will help you deploy the Email Lead Sync Dashboard to Render with **separate services** for frontend and backend. This approach provides better performance, independent scaling, and is the recommended production setup.
+
+## 🏗️ Architecture
+
+- **Backend Service**: Node.js web service running the API and email polling
+- **Frontend Service**: Static site serving the React application
+- **Database**: MongoDB Atlas (cloud database)
 
 ## 📋 Prerequisites
 
@@ -39,37 +45,56 @@ Before deploying, make sure you have:
 
 ## 🌐 Step 3: Deploy on Render
 
-### Option A: Using render.yaml (Recommended)
+You'll create **TWO separate services**: one for backend and one for frontend.
 
-1. Go to https://dashboard.render.com
-2. Click "New" → "Blueprint"
-3. Connect your GitHub repository
-4. Render will automatically detect the `render.yaml` file
-5. Fill in the environment variables (see below)
-6. Click "Apply" to deploy
-
-### Option B: Manual Deployment
+### Deploy Backend First
 
 1. Go to https://dashboard.render.com
 2. Click "New" → "Web Service"
 3. Connect your GitHub repository
-4. Configure the service:
-   - **Name**: `email-lead-sync-dashboard`
+4. Configure the **Backend Service**:
+   - **Name**: `email-lead-sync-backend`
    - **Environment**: `Node`
-   - **Build Command**: `npm install && npm run build`
+   - **Root Directory**: `backend`
+   - **Build Command**: `npm install`
    - **Start Command**: `npm start`
-   - **Plan**: Free (or your preferred plan)
+   - **Plan**: Free (or Starter for always-on service)
+5. Click "Create Web Service"
+6. **Note the backend URL**: `https://email-lead-sync-backend-xxxx.onrender.com`
+
+### Deploy Frontend Second
+
+1. In Render dashboard, click "New" → "Static Site"
+2. Connect the same GitHub repository
+3. Configure the **Frontend Service**:
+   - **Name**: `email-lead-sync-frontend`
+   - **Root Directory**: `frontend`
+   - **Build Command**: `npm install && npm run build`
+   - **Publish Directory**: `dist`
+   - **Plan**: Free
+4. Click "Create Static Site"
+
+### Option: Use Blueprint (Easier)
+
+Alternatively, use the `render.yaml` file for automatic setup:
+
+1. Go to https://dashboard.render.com
+2. Click "New" → "Blueprint"
+3. Connect your GitHub repository
+4. Render will detect `render.yaml` and set up **both services automatically**
+5. Fill in the environment variables (see below)
+6. Click "Apply"
 
 ## 🔐 Step 4: Configure Environment Variables
 
-Add the following environment variables in Render dashboard:
+### Backend Environment Variables
 
-### Required Variables:
+Add these in the backend service's "Environment" tab:
 
 | Variable | Example Value | Description |
 |----------|---------------|-------------|
 | `NODE_ENV` | `production` | Environment mode |
-| `PORT` | `10000` | Port (Render provides this automatically) |
+| `PORT` | `10000` | Port (Render sets this automatically) |
 | `MONGODB_URI` | `mongodb+srv://user:pass@cluster.mongodb.net/email-leads` | MongoDB connection string |
 | `IMAP_HOST` | `imap.gmail.com` | IMAP server hostname |
 | `IMAP_PORT` | `993` | IMAP port (usually 993 for secure) |
@@ -78,15 +103,21 @@ Add the following environment variables in Render dashboard:
 | `EMAIL_PASS` | `your-app-password` | Email app-specific password |
 | `SENDER_EMAIL` | `sender@domain.com` | Filter emails from this sender |
 | `SUBJECT_PATTERN` | `Daily Report` | Subject line pattern to match |
-| `FRONTEND_URL` | `https://your-app.onrender.com` | Your Render app URL |
+| `FRONTEND_URL` | `https://email-lead-sync-frontend-xxxx.onrender.com` | Your frontend URL (for CORS) |
 
-### How to Add Environment Variables in Render:
+### Frontend Environment Variables
 
-1. In your web service dashboard, go to "Environment"
-2. Click "Add Environment Variable"
-3. Enter the key and value
-4. Click "Save Changes"
-5. Render will automatically redeploy with new variables
+Add these in the frontend service's "Environment" tab:
+
+| Variable | Example Value | Description |
+|----------|---------------|-------------|
+| `VITE_API_URL` | `https://email-lead-sync-backend-xxxx.onrender.com` | Your backend API URL |
+
+### Important Notes:
+
+⚠️ **FRONTEND_URL** in backend must match your frontend's Render URL  
+⚠️ **VITE_API_URL** in frontend must match your backend's Render URL  
+⚠️ Make sure both URLs use `https://` protocol
 
 ## 🔧 Step 5: Gmail App Password Setup
 
@@ -103,13 +134,24 @@ If using Gmail, you need an app-specific password:
 
 ## ✅ Step 6: Verify Deployment
 
-After deployment completes:
+After both services are deployed:
 
-1. Visit your app URL: `https://your-app-name.onrender.com`
-2. Check the logs in Render dashboard for any errors
-3. Test the health endpoint: `https://your-app-name.onrender.com/health`
-4. Verify the dashboard loads correctly
-5. Wait for email polling to start (first check happens immediately, then every 10 minutes)
+### Test Backend
+1. Visit: `https://your-backend.onrender.com/health`
+2. Should return: `{"status":"ok","message":"Email Lead Sync Dashboard API is running"}`
+3. Check logs for email polling messages
+
+### Test Frontend
+1. Visit: `https://your-frontend.onrender.com`
+2. Dashboard should load correctly
+3. Check browser console for any errors
+4. Verify data loads from backend API
+
+### Test Integration
+1. Open browser developer tools (Network tab)
+2. Verify API calls go to your backend URL
+3. Check WebSocket connection is established
+4. Wait for email polling cycle (check backend logs)
 
 ## 🐛 Troubleshooting
 

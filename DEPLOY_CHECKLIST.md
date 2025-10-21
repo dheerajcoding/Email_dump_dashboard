@@ -19,21 +19,20 @@ git remote add origin https://github.com/yourusername/your-repo.git
 git push -u origin main
 ```
 
-### 2. Create Web Service on Render
+### 2. Deploy Backend on Render
 
 1. Go to https://dashboard.render.com
 2. Click "New +" → "Web Service"
 3. Connect your GitHub repository
 4. Configure:
-   - **Name**: `email-lead-sync-dashboard`
+   - **Name**: `email-lead-sync-backend`
+   - **Root Directory**: `backend`
    - **Environment**: `Node`
-   - **Build Command**: `npm install && npm run build`
+   - **Build Command**: `npm install`
    - **Start Command**: `npm start`
-   - **Plan**: Free (or Starter for production)
+   - **Plan**: Free (or Starter for always-on)
 
-### 3. Add Environment Variables
-
-Copy these to Render Environment section:
+### 3. Add Backend Environment Variables
 
 ```
 NODE_ENV=production
@@ -46,23 +45,46 @@ EMAIL_USER=your.email@domain.com
 EMAIL_PASS=your-app-password
 SENDER_EMAIL=sender@domain.com
 SUBJECT_PATTERN=Your Subject Pattern
-FRONTEND_URL=https://your-app-name.onrender.com
+FRONTEND_URL=https://your-frontend.onrender.com
 ```
 
-### 4. Deploy
+**Note**: Save the backend URL: `https://email-lead-sync-backend-xxxx.onrender.com`
 
-Click "Create Web Service" - Render will:
-- Clone your repository
-- Install dependencies
-- Build the frontend
-- Start the server
+### 4. Deploy Frontend on Render
 
-### 5. Verify
+1. Click "New +" → "Static Site"
+2. Connect the same GitHub repository
+3. Configure:
+   - **Name**: `email-lead-sync-frontend`
+   - **Root Directory**: `frontend`
+   - **Build Command**: `npm install && npm run build`
+   - **Publish Directory**: `dist`
+   - **Plan**: Free
 
-- [ ] Visit `https://your-app-name.onrender.com`
-- [ ] Check `/health` endpoint
-- [ ] Monitor logs for email polling
+### 5. Add Frontend Environment Variable
+
+```
+VITE_API_URL=https://email-lead-sync-backend-xxxx.onrender.com
+```
+
+**Replace** with your actual backend URL from step 3!
+
+### 6. Update Backend CORS
+
+Go back to backend service environment variables and update:
+```
+FRONTEND_URL=https://email-lead-sync-frontend-xxxx.onrender.com
+```
+
+**Replace** with your actual frontend URL from step 4!
+
+### 7. Verify
+
+- [ ] Visit `https://your-frontend.onrender.com`
+- [ ] Check `/health` on backend: `https://your-backend.onrender.com/health`
+- [ ] Monitor backend logs for email polling
 - [ ] Test dashboard functionality
+- [ ] Verify real-time updates work
 
 ## Important Notes
 

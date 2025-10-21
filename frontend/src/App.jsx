@@ -5,8 +5,10 @@ import Dashboard from './components/Dashboard';
 import Header from './components/Header';
 import Toast from './components/Toast';
 
-// Use environment variable for API URL, fallback to relative path in production
-const API_URL = import.meta.env.VITE_API_URL || window.location.origin;
+// Use environment variable for API URL
+// In development: http://localhost:5000
+// In production: Set VITE_API_URL to your Render backend URL
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 const socket = io(API_URL);
 
 function App() {
