@@ -9,22 +9,48 @@ class ExcelService {
 
       const workbook = XLSX.readFile(filePath);
       
+      // Use Sheet2 (index 1) if it exists, otherwise use first sheet
       const sheetIndex = workbook.SheetNames.length > 1 ? 1 : 0;
       const sheetName = workbook.SheetNames[sheetIndex];
       const worksheet = workbook.Sheets[sheetName];
 
       console.log(' Reading sheet:', sheetName);
 
+      // Convert to JSON with header row handling
       const jsonData = XLSX.utils.sheet_to_json(worksheet, {
         raw: false,
-        defval: ''
+        defval: '',
+        blankrows: false, // Skip blank rows
+        header: 1 // Get array of arrays first
       });
 
-      console.log(' Parsed ' + jsonData.length + ' rows');
+      if (jsonData.length === 0) {
+        console.log(' No data found in sheet');
+        return [];
+      }
+
+      // First row is headers
+      const headers = jsonData[0];
+      const dataRows = jsonData.slice(1);
+
+      // Convert to objects with proper headers
+      const result = dataRows.map(row => {
+        const obj = {};
+        headers.forEach((header, index) => {
+          // Use the actual header name, or fallback to Column_N if empty
+          const key = header && header.toString().trim() !== '' 
+            ? header.toString().trim() 
+            : `Column_${index + 1}`;
+          obj[key] = row[index] !== undefined ? row[index] : '';
+        });
+        return obj;
+      });
+
+      console.log(' Parsed ' + result.length + ' rows');
 
       this.deleteFile(filePath);
 
-      return jsonData;
+      return result;
     } catch (error) {
       console.error(' Error parsing Excel:', error.message);
       throw error;
