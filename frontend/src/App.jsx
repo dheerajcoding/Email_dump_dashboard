@@ -18,8 +18,8 @@ function App() {
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1, total: 0, date: null });
   const [toast, setToast] = useState({ show: false, message: '', type: 'info' });
 
-  // Fetch leads with pagination (default: page 1, limit 999999 to get all)
-  const fetchLeads = async (page = 1, limit = 999999) => {
+  // Fetch leads with pagination (default: page 1, limit 500)
+  const fetchLeads = async (page = 1, limit = 500) => {
     try {
       setLoading(true);
       const response = await axios.get(`${API_URL}/api/leads?page=${page}&limit=${limit}`);
