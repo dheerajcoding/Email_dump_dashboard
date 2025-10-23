@@ -21,7 +21,7 @@ router.get('/leads', async (req, res) => {
 
     // Get pagination parameters from query
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 50; // Default to 50 leads per page
+    const limit = parseInt(req.query.limit) || 999999; // Default to all leads (no pagination)
     const skip = (page - 1) * limit;
     
     // Get today's date string (YYYY-MM-DD)
