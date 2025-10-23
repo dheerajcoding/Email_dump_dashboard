@@ -1,9 +1,13 @@
 import { useState, useMemo } from 'react';
 import LeadsTable from './LeadsTable';
-import { FiSearch, FiX, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { FiSearch, FiX, FiChevronLeft, FiChevronRight, FiDownload } from 'react-icons/fi';
+import axios from 'axios';
 
 function Dashboard({ leads, loading, pagination, onPageChange }) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [exporting, setExporting] = useState(false);
+
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
   // Filter leads based on search term
   const filteredLeads = useMemo(() => {
@@ -26,6 +30,32 @@ function Dashboard({ leads, loading, pagination, onPageChange }) {
     });
   }, [leads, searchTerm]);
 
+  // Export all leads to Excel
+  const handleExport = async () => {
+    try {
+      setExporting(true);
+      const response = await axios.get(`${API_URL}/api/leads/export`, {
+        responseType: 'blob'
+      });
+
+      // Create download link
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      const date = new Date().toISOString().split('T')[0];
+      link.setAttribute('download', `leads_${date}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error exporting leads:', error);
+      alert('Failed to export leads. Please try again.');
+    } finally {
+      setExporting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -37,11 +67,19 @@ function Dashboard({ leads, loading, pagination, onPageChange }) {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Current Date Info */}
-      <div className="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
+      <div className="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-center justify-between">
         <p className="text-sm text-blue-800">
           📅 Showing leads for: <span className="font-semibold">{pagination.date || new Date().toISOString().split('T')[0]}</span>
           {' '} | Total: <span className="font-semibold">{pagination.total || 0}</span> leads
         </p>
+        <button
+          onClick={handleExport}
+          disabled={exporting || pagination.total === 0}
+          className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+        >
+          <FiDownload className="w-4 h-4" />
+          {exporting ? 'Exporting...' : 'Export to Excel'}
+        </button>
       </div>
 
       {/* Search Bar */}
