@@ -39,13 +39,21 @@ class EmailPoller {
         return;
       }
 
-      console.log(`📬 [POLLER] Processing ${emails.length} email(s) for ${subjectDate}...`);
+      console.log(`📬 [POLLER] Found ${emails.length} email(s) for ${subjectDate}`);
+      
+      // ⚡ PRODUCTION FIX: Process only the LATEST email to prevent memory overflow
+      // Sort by date (newest first) and take only the first one
+      const latestEmail = emails.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+      console.log(`📧 [POLLER] Processing LATEST email only: ${latestEmail.subject}`);
 
       // Clear previous leads (fresh start each time)
       this.todaysLeads = [];
       let totalLeadsAdded = 0;
 
-      for (const email of emails) {
+      // Process only the latest email
+      const emailsToProcess = [latestEmail];
+      
+      for (const email of emailsToProcess) {
         try {
           // Parse Excel attachments
           const excelData = excelService.parseAllAttachments(email.attachments);
