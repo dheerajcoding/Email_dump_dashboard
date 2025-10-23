@@ -99,7 +99,7 @@ function Dashboard({ leads, loading, pagination, onPageChange }) {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="px-6 sm:px-8 lg:px-12 py-8 h-full">
       {/* Top Bar with Date Info and Export */}
       <div className="mb-6 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl p-4 shadow-xl flex items-center justify-between">
         <div className="flex items-center gap-3">

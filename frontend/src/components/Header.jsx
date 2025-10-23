@@ -12,7 +12,7 @@ function Header({ stats, onRefresh }) {
 
   return (
     <header className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 shadow-2xl">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="px-6 sm:px-8 lg:px-12 py-8">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-4">
             <div className="bg-white p-3 rounded-xl shadow-lg">

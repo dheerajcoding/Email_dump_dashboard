@@ -110,7 +110,7 @@ function App() {
   }, [pagination.page]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-100 flex flex-col">
       <Header 
         stats={stats} 
         onRefresh={() => { 
@@ -118,12 +118,14 @@ function App() {
           fetchStats(); 
         }} 
       />
-      <Dashboard 
-        leads={leads} 
-        loading={loading} 
-        pagination={pagination}
-        onPageChange={handlePageChange}
-      />
+      <div className="flex-1">
+        <Dashboard 
+          leads={leads} 
+          loading={loading} 
+          pagination={pagination}
+          onPageChange={handlePageChange}
+        />
+      </div>
       {toast.show && <Toast message={toast.message} type={toast.type} />}
     </div>
   );
