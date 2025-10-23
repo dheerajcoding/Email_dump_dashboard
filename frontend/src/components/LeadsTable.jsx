@@ -56,46 +56,46 @@ function LeadsTable({ leads }) {
 
   return (
     <>
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50 sticky top-0">
+            <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
               <tr>
-                <th className="table-header-style w-12">#</th>
-                <th className="table-header-style w-24">Actions</th>
+                <th className="table-header-style w-16 text-gray-700">#</th>
+                <th className="table-header-style w-32 text-gray-700">Actions</th>
                 {columns.map((column) => (
                   <th
                     key={column}
-                    className="table-header-style cursor-pointer hover:bg-gray-200 transition-colors"
+                    className="table-header-style cursor-pointer hover:bg-blue-50 transition-colors text-gray-700"
                     onClick={() => handleSort(column)}
                   >
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 font-semibold">
                       {column}
                       {sortConfig.key === column && (
-                        <span>{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
+                        <span className="text-blue-600 font-bold">{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
                       )}
                     </div>
                   </th>
                 ))}
-                <th className="table-header-style">File Name</th>
-                <th className="table-header-style">Fetched At</th>
+                <th className="table-header-style text-gray-700">File Name</th>
+                <th className="table-header-style text-gray-700">Fetched At</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white divide-y divide-gray-100">
               {sortedLeads.map((lead, index) => (
                 <tr
                   key={lead._id}
-                  className={`hover:bg-blue-50 transition-colors ${
-                    index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                  className={`hover:bg-blue-50 transition-all duration-150 ${
+                    index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'
                   }`}
                 >
-                  <td className="table-cell-style font-medium text-gray-500">
+                  <td className="table-cell-style font-bold text-gray-600">
                     {index + 1}
                   </td>
                   <td className="table-cell-style">
                     <button
                       onClick={() => setSelectedLead(lead)}
-                      className="flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
+                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 text-sm font-medium shadow-md hover:shadow-lg transform hover:scale-105"
                       title="View full details"
                     >
                       <FiEye className="w-4 h-4" />
@@ -103,7 +103,7 @@ function LeadsTable({ leads }) {
                     </button>
                   </td>
                   {columns.map((column) => (
-                    <td key={column} className="table-cell-style">
+                    <td key={column} className="table-cell-style text-gray-700">
                       {lead.data?.[column] || '-'}
                     </td>
                   ))}
@@ -119,9 +119,10 @@ function LeadsTable({ leads }) {
           </table>
         </div>
         
-        <div className="bg-gray-50 px-4 py-3 border-t border-gray-200">
-          <p className="text-sm text-gray-600">
-            Showing <span className="font-semibold">{sortedLeads.length}</span> leads
+        <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-t border-gray-200">
+          <p className="text-sm text-gray-700 font-medium flex items-center gap-2">
+            <span className="inline-block w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+            Showing <span className="font-bold text-blue-600">{sortedLeads.length}</span> leads
           </p>
         </div>
       </div>
