@@ -147,22 +147,63 @@ class EmailPoller {
   }
 
   start() {
-    console.log('🚀 [POLLER] Starting email poller (checks every 10 minutes)');
+    console.log('🚀 [POLLER] Starting email poller (checks every 2 hours at :05 minutes)');
+    
+    // Calculate next check time (every 2 hours at :05 minutes: 12:05, 2:05, 4:05, etc.)
+    const getNextCheckTime = () => {
+      const now = new Date();
+      const currentHour = now.getHours();
+      const currentMinute = now.getMinutes();
+      
+      // Find next 2-hour interval (0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22)
+      let nextHour = Math.floor(currentHour / 2) * 2;
+      
+      // If we're past :05 minutes, move to next 2-hour slot
+      if (currentMinute >= 5) {
+        nextHour += 2;
+      }
+      
+      // Handle day overflow
+      if (nextHour >= 24) {
+        nextHour = nextHour % 24;
+      }
+      
+      const nextCheck = new Date(now);
+      nextCheck.setHours(nextHour, 5, 0, 0); // Set to :05 minutes
+      
+      // If calculated time is in the past, add 2 hours
+      if (nextCheck <= now) {
+        nextCheck.setHours(nextCheck.getHours() + 2);
+      }
+      
+      return nextCheck;
+    };
+    
+    const scheduleNextCheck = () => {
+      const nextTime = getNextCheckTime();
+      const delay = nextTime - new Date();
+      
+      console.log(`⏰ Next email check scheduled at: ${nextTime.toLocaleString()} (in ${Math.round(delay / 60000)} minutes)`);
+      
+      this.pollInterval = setTimeout(() => {
+        this.processEmails();
+        scheduleNextCheck(); // Schedule the next check after this one completes
+      }, delay);
+    };
     
     // Run immediately on start
+    console.log('🔄 Running initial email check...');
     this.processEmails();
-
-    // Then run every 10 minutes
-    this.pollInterval = setInterval(() => {
-      this.processEmails();
-    }, 10 * 60 * 1000); // 10 minutes in milliseconds
+    
+    // Schedule the next check
+    scheduleNextCheck();
 
     console.log('✅ [POLLER] Email poller started successfully');
   }
 
   stop() {
     if (this.pollInterval) {
-      clearInterval(this.pollInterval);
+      clearTimeout(this.pollInterval); // Changed from clearInterval to clearTimeout
       this.pollInterval = null;
       console.log('🛑 [POLLER] Email poller stopped');
     }

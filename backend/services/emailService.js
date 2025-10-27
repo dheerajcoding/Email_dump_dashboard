@@ -66,14 +66,16 @@ class EmailService {
       let skippedCount = 0;
       let totalCount = 0;
       
-      // ⚡ MEMORY OPTIMIZATION: Process emails one by one instead of loading all into memory
-      // Fetch recent emails only (last 30 days) to reduce memory usage
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      // ⚡ SPEED OPTIMIZATION: Only fetch emails from last 3 hours (since emails come every 2 hours)
+      const threeHoursAgo = new Date();
+      threeHoursAgo.setHours(threeHoursAgo.getHours() - 3);
+      
+      console.log(`⏱️  Searching emails since: ${threeHoursAgo.toLocaleString()}`);
       
       for await (let message of this.client.fetch({
         from: senderEmail,
-        since: thirtyDaysAgo
+        since: threeHoursAgo,
+        seen: false // Only fetch unseen emails for speed
       }, {
         envelope: true,
         source: true
@@ -128,6 +130,13 @@ class EmailService {
                 attachments: attachmentPaths,
                 attachmentNames: excelAttachments.map(a => a.filename)
               });
+              
+              // ⚡ SPEED: Mark email as seen so it won't be fetched again
+              try {
+                await this.client.messageFlagsAdd(message.uid, ['\\Seen']);
+              } catch (flagError) {
+                console.log('⚠️  Could not mark email as seen:', flagError.message);
+              }
             }
           }
           
@@ -145,7 +154,7 @@ class EmailService {
         }
       }
 
-      console.log(`📧 Scanned ${totalCount} emails from sender (last 30 days)`);
+      console.log(`⚡ Scanned ${totalCount} emails from sender (last 3 hours)`);
       console.log(`✅ Processed ${processedCount} emails with today's date`);
       console.log(`⏭️  Skipped ${skippedCount} emails (different dates)`);
 
