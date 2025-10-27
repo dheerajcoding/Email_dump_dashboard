@@ -4,7 +4,7 @@
   "description": "Backend for Email Lead Sync Dashboard",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node --max-old-space-size=460 --expose-gc server.js",
     "dev": "nodemon server.js"
   },
   "keywords": ["email", "leads", "sync", "imap"],

@@ -61,25 +61,25 @@ class EmailService {
       console.log('🔍 Searching for emails from:', senderEmail);
       console.log('📅 Looking for date in subject:', targetDate);
 
-      const messages = [];
-      
-      // Search ALL emails from sender (not just unseen)
-      for await (let message of this.client.fetch({
-        from: senderEmail
-      }, {
-        envelope: true,
-        source: true
-      })) {
-        messages.push(message);
-      }
-
-      console.log('📧 Found ' + messages.length + ' total emails from sender');
-
       const emailsWithAttachments = [];
       let processedCount = 0;
       let skippedCount = 0;
-
-      for (const message of messages) {
+      let totalCount = 0;
+      
+      // ⚡ MEMORY OPTIMIZATION: Process emails one by one instead of loading all into memory
+      // Fetch recent emails only (last 30 days) to reduce memory usage
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      
+      for await (let message of this.client.fetch({
+        from: senderEmail,
+        since: thirtyDaysAgo
+      }, {
+        envelope: true,
+        source: true
+      }, { maxBytes: 20 * 1024 * 1024 })) { // Limit to 20MB per email
+        totalCount++;
+        
         try {
           const parsed = await simpleParser(message.source);
           
@@ -130,11 +130,22 @@ class EmailService {
               });
             }
           }
+          
+          // Clear parsed email from memory immediately after processing
+          parsed.attachments = null;
+          message.source = null;
+          
         } catch (parseError) {
           console.error('❌ Error parsing email:', parseError.message);
         }
+        
+        // Force garbage collection hint after every 10 emails (if available)
+        if (totalCount % 10 === 0 && global.gc) {
+          global.gc();
+        }
       }
 
+      console.log(`📧 Scanned ${totalCount} emails from sender (last 30 days)`);
       console.log(`✅ Processed ${processedCount} emails with today's date`);
       console.log(`⏭️  Skipped ${skippedCount} emails (different dates)`);
 

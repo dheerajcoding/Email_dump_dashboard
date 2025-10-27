@@ -7,6 +7,7 @@ class EmailPoller {
     this.isPolling = false;
     this.pollInterval = null;
     this.todaysLeads = []; // Store today's leads in memory only
+    this.maxLeadsInMemory = 10000; // ⚡ Limit to prevent memory overflow on free tier
   }
 
   async processEmails() {
@@ -76,16 +77,31 @@ class EmailPoller {
             date: todayDate
           }));
 
-          this.todaysLeads.push(...leads);
-          totalLeadsAdded += leads.length;
+          // ⚡ MEMORY SAFETY: Check if adding these leads would exceed the limit
+          if (this.todaysLeads.length + leads.length > this.maxLeadsInMemory) {
+            console.log(`⚠️  Memory limit reached! Current: ${this.todaysLeads.length}, Incoming: ${leads.length}, Max: ${this.maxLeadsInMemory}`);
+            // Keep only the most recent leads
+            const available = this.maxLeadsInMemory - this.todaysLeads.length;
+            if (available > 0) {
+              this.todaysLeads.push(...leads.slice(0, available));
+              totalLeadsAdded += available;
+              console.log(`⚠️  Added only ${available} leads to stay within memory limit`);
+            } else {
+              console.log(`❌ Cannot add more leads - memory full`);
+            }
+          } else {
+            this.todaysLeads.push(...leads);
+            totalLeadsAdded += leads.length;
+          }
 
-          console.log(`✅ Stored ${leads.length} leads in memory for ${todayDate}`);
+          console.log(`✅ Stored ${Math.min(leads.length, this.maxLeadsInMemory - (this.todaysLeads.length - totalLeadsAdded))} leads in memory for ${todayDate}`);
 
           // Emit real-time update to all connected clients
           if (this.io) {
+            const leadsToEmit = Math.min(leads.length, this.maxLeadsInMemory - (this.todaysLeads.length - totalLeadsAdded));
             this.io.emit('new-leads', {
-              count: leads.length,
-              leads: leads,
+              count: leadsToEmit,
+              leads: leads.slice(0, leadsToEmit),
               email: {
                 subject: email.subject,
                 date: email.date,
@@ -94,6 +110,10 @@ class EmailPoller {
             });
             console.log('📡 Emitted real-time update to clients');
           }
+          
+          // ⚡ Clear processed data from memory
+          excelData.length = 0;
+          leads.length = 0;
         } catch (error) {
           console.error('❌ Error processing email:', error.message);
         }
@@ -106,6 +126,12 @@ class EmailPoller {
       
       // Disconnect from email server
       await emailService.disconnect();
+      
+      // ⚡ Force garbage collection if available
+      if (global.gc) {
+        global.gc();
+        console.log('🧹 Triggered garbage collection');
+      }
 
     } catch (error) {
       console.error('❌ [POLLER] Error during email polling:', error.message);
