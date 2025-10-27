@@ -74,8 +74,8 @@ class EmailService {
       
       for await (let message of this.client.fetch({
         from: senderEmail,
-        since: threeHoursAgo,
-        seen: false // Only fetch unseen emails for speed
+        since: threeHoursAgo
+        // Removed seen:false to fetch all emails (seen and unseen)
       }, {
         envelope: true,
         source: true
@@ -130,13 +130,6 @@ class EmailService {
                 attachments: attachmentPaths,
                 attachmentNames: excelAttachments.map(a => a.filename)
               });
-              
-              // ⚡ SPEED: Mark email as seen so it won't be fetched again
-              try {
-                await this.client.messageFlagsAdd(message.uid, ['\\Seen']);
-              } catch (flagError) {
-                console.log('⚠️  Could not mark email as seen:', flagError.message);
-              }
             }
           }
           
